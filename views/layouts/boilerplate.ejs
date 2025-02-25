@@ -49,6 +49,13 @@
   </head>
 
   <body>
+
+    <% if (typeof currUser !== 'undefined' && currUser) { %>
+      <% console.log("currUser:", currUser); %>
+  <% } else { %>
+      <% console.log("No user logged in."); %>
+  <% } %>
+  
     <% console.log("currUser:", currUser); %>
     <!-- Include navbar on all pages -->
     <%- include("../includes/navbar.ejs") %>
