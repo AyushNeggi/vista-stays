@@ -1,26 +1,25 @@
-//file that handles the logic for specific application routes
-
+// Import required modules and dependencies
 const Listing = require("../models/listing.js");
-const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding"); //using geocoding
+const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding"); // Import Mapbox Geocoding service
 const mapToken = process.env.MAP_TOKEN;
-const geocodingClient = mbxGeocoding({ accessToken: mapToken }); //object to work regarding geocoding
+const geocodingClient = mbxGeocoding({ accessToken: mapToken }); // Initialize Mapbox geocoding client
 
-//index route
+// Route to fetch all listings (Index Route)
 module.exports.index = async (req, res) => {
-  const allListings = await Listing.find({});
-  res.render("listings/index.ejs", { allListings });
+  const allListings = await Listing.find({}); // Retrieve all listings from the database
+  res.render("listings/index.ejs", { allListings }); // Render the index page with the listings
 };
 
-//new route
+// Route to render form for creating a new listing (New Route)
 module.exports.renderNewForm = (req, res) => {
-  res.render("listings/new.ejs");
+  res.render("listings/new.ejs"); // Render the form for creating a new listing
 };
 
-//create route
+// Route to create a new listing (Create Route)
 module.exports.createListing = async (req, res) => {
   let response = await geocodingClient
     .forwardGeocode({
-      query: req.body.listing.location,
+      query: req.body.listing.location, // Convert location input into geographic coordinates
       limit: 1,
     })
     .send();
@@ -28,74 +27,67 @@ module.exports.createListing = async (req, res) => {
   let url = req.file.path;
   let filename = req.file.filename;
   const newListing = new Listing(req.body.listing);
-  newListing.owner = req.user._id; //directly inserting id of user who logged in
-  newListing.image = { url, filename };
-  newListing.geometry = response.body.features[0].geometry;
+  newListing.owner = req.user._id; // Assign the logged-in user as the listing owner
+  newListing.image = { url, filename }; // Store the uploaded image URL and filename
+  newListing.geometry = response.body.features[0].geometry; // Store geolocation data
 
-  let savedListing = await newListing.save(); //inserting inside db
-  req.flash("success", "New listing created"); // flash is created so that whenever u create a post this message will come at starting and success is key for this msg
+  await newListing.save(); // Save the new listing in the database
+  req.flash("success", "New listing created"); // Flash success message upon creation
   res.redirect("/listings");
 };
 
-//show route
+// Route to display a specific listing (Show Route)
 module.exports.showListing = async (req, res) => {
   let { id } = req.params;
   const listing = await Listing.findById(id)
     .populate({
-      //nested populate
-      path: "reviews", //populating reviews with listing
+      path: "reviews", // Populate reviews associated with the listing
       populate: {
-        //for individual reviews populating it's author
-        path: "author",
+        path: "author", // Further populate review authors
       },
     })
-    .populate("owner"); //accessing all info by id , by populate we send object of review
+    .populate("owner"); // Populate listing owner details
 
   if (!listing) {
-    //this will flash when either your requested listing is deleted or not available
-    req.flash("error", " listing you are requested doesn't existed");
-    res.redirect("/listings");
+    req.flash("error", "The listing you requested doesn't exist"); // Flash error message if listing is not found
+    return res.redirect("/listings");
   }
 
-  res.render("listings/show.ejs", { listing });
+  res.render("listings/show.ejs", { listing }); // Render the listing details page
 };
 
-//edit route
-
+// Route to render the edit form for a listing (Edit Route)
 module.exports.renderEditForm = async (req, res) => {
   let { id } = req.params;
   const listing = await Listing.findById(id);
   if (!listing) {
-    //this will flash when either your requested listing is deleted or not available
-    req.flash("error", " listing you are requested doesn't existed");
-    res.redirect(`/listings`);
+    req.flash("error", "The listing you requested doesn't exist"); // Flash error message if listing is not found
+    return res.redirect(`/listings`);
   }
-  let originalImageUrl = listing.image.url;
-  originalImageUrl = originalImageUrl.replace("/upload", "/upload/w_250");
-  res.render("listings/edit.ejs", { listing, originalImageUrl });
+  let originalImageUrl = listing.image.url.replace("/upload", "/upload/w_250"); // Generate a resized preview of the image
+  res.render("listings/edit.ejs", { listing, originalImageUrl }); // Render edit form
 };
 
-//update route
+// Route to update an existing listing (Update Route)
 module.exports.updateListing = async (req, res) => {
   let { id } = req.params;
-
-  let listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing });
+  let listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing }); // Update listing details in the database
 
   if (typeof req.file !== "undefined") {
-    //if image is updated
+    // If a new image is uploaded, update the listing image
     let url = req.file.path;
     let filename = req.file.filename;
     listing.image = { url, filename };
     await listing.save();
   }
-  req.flash("success", " listing is updated");
+  req.flash("success", "Listing updated successfully"); // Flash success message upon update
   res.redirect(`/listings/${id}`);
 };
 
-//delete route
+// Route to delete a listing (Delete Route)
 module.exports.destroyListing = async (req, res) => {
   let { id } = req.params;
-  let deletedListing = await Listing.findByIdAndDelete(id);
-  req.flash("success", " listing is deleted");
+  await Listing.findByIdAndDelete(id); // Remove the listing from the database
+  req.flash("success", "Listing deleted successfully"); // Flash success message upon deletion
   res.redirect("/listings");
 };

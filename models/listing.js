@@ -9,7 +9,7 @@ const listingSchema = new Schema({
     type: String,
     required: true,
   },
-  description: String,
+  description: String, // Optional description of the listing
   image: {
     url: String,
     filename: String,
@@ -17,37 +17,37 @@ const listingSchema = new Schema({
   price: {
     type: Number,
     required: true,
-    min: 0, // Optional: Ensure no negative prices
+    min: 0, // Ensures that price is not negative
   },
-  location: String,
-  country: String,
+  location: String, // Specifies the location of the listing
+  country: String, // Specifies the country of the listing
   reviews: [
     {
-      type: Schema.Types.ObjectId, //it will contain id of the user which will give review
-      ref: "Review",
+      type: Schema.Types.ObjectId, // Stores the ID of each review associated with the listing
+      ref: "Review", // References the Review model
     },
   ],
   owner: {
     type: Schema.Types.ObjectId,
-    ref: "User",
+    ref: "User", // References the User model to track listing ownership
   },
   geometry: {
     type: {
-      type: String, // Don't do `{ location: { type: String } }`
-      enum: ["Point"], // 'location.type' must be 'Point'
+      type: String, // Defines the type of geographic data
+      enum: ["Point"], // Ensures only 'Point' type is used for geolocation
       required: true,
     },
     coordinates: {
-      type: [Number],
+      type: [Number], // Stores latitude and longitude coordinates
       required: true,
     },
   },
 });
 
-//mongoose middleware which automatically works whenever u will call findOneandDelete method or in simple whenever u will delete a listing than all its corresponding reviews will be deleted
+// Mongoose middleware to delete associated reviews when a listing is deleted
 listingSchema.post("findOneAndDelete", async (listing) => {
   if (listing) {
-    await Review.deleteMany({ _id: { $in: listing.reviews } });
+    await Review.deleteMany({ _id: { $in: listing.reviews } }); // Deletes all reviews related to the listing
   }
 });
 

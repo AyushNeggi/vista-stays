@@ -1,13 +1,18 @@
-<!-- template for login page  -->
+<!-- Template for login page -->
+
 <% layout("/layouts/boilerplate.ejs") %>
 
 <div class="row mt-3">
-  <h1 class="col-6 offset-3">login on wanderlust</h1>
+  <!-- Page heading -->
+  <h1 class="col-6 offset-3">Login on Vista Stays</h1>
 
   <div class="col-6 offset-3">
+    <!-- Login form -->
     <form action="/login" method="POST" class="needs-validation" novalidate>
+      
+      <!-- Username field -->
       <div class="mb-3">
-        <lable for="username" class="form-label">Username</lable>
+        <label for="username" class="form-label">Username</label>
         <input
           type="text"
           name="username"
@@ -17,8 +22,9 @@
         />
       </div>
 
+      <!-- Password field -->
       <div class="mb-3">
-        <lable for="password" class="form-label">password</lable>
+        <label for="password" class="form-label">Password</label>
         <input
           type="password"
           name="password"
@@ -27,7 +33,9 @@
           required
         />
       </div>
-      <button class="btn btn-success">login</button>
+
+      <!-- Submit button -->
+      <button class="btn btn-success">Login</button>
     </form>
   </div>
 </div>

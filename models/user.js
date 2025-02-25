@@ -1,18 +1,18 @@
-//schema for user who sign up and log in
+// Schema for users who sign up and log in
 
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const passportLocalMongoose = require("passport-local-mongoose"); //First you need to plugin Passport-Local Mongoose into your User schema
+const passportLocalMongoose = require("passport-local-mongoose"); // Plugin to simplify user authentication
 
 const userSchema = new Schema({
-  //username and password will be add by Passport-Local Mongoose by default
+  // Username and password are automatically added by Passport-Local Mongoose
 
   email: {
     type: String,
-    required: true,
+    required: true, // Ensures email is provided during signup
   },
 });
 
-userSchema.plugin(passportLocalMongoose);
+userSchema.plugin(passportLocalMongoose); // Integrates authentication methods into the schema
 
 module.exports = mongoose.model("User", userSchema);

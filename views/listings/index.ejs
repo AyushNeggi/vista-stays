@@ -1,6 +1,4 @@
-<!-- main template to show all places by their title -->
-
-<% layout("/layouts/boilerplate")%>
+<% layout("/layouts/boilerplate.ejs") %>
 
 <style>
   #filters {
@@ -13,7 +11,11 @@
     margin-top: 1rem;
     opacity: 0.7;
   }
-
+  .filter div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .filter:hover {
     opacity: 1;
     cursor: pointer;
@@ -22,7 +24,7 @@
     font-size: 0.8rem;
   }
   .tax-info {
-    display: none; /*not visible neither take space*/
+    display: none;
   }
   .tax-toggle {
     border: 0.1px #00000099 solid;
@@ -96,50 +98,42 @@
         role="switch"
         id="flexSwitchCheckDefault"
       />
-      <label class="form-check-label" for="flexSwitchCheckDefault"
-        >Display total after taxes
+      <label class="form-check-label" for="flexSwitchCheckDefault">
+        Display total after taxes
       </label>
     </div>
   </div>
 </div>
-<!-- <form method="get" action="/listings/new"><button> Create New </button></form> -->
+
 <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-2 mt-3">
-  <!--[row-cols-md-2 how many images to show in row col when screen wil me large,medium and small] -->
-  <%for(let listing of allListings){%>
-  <a href="/listings/<%= listing._id %>" class="listing-link">
-    <div class="listing-card">
-      <img
-        src="<%= listing.image.url %>"
-        class="card-img-top"
-        alt="listing_image"
-        style="height: 20rem"
-      />
-
-      <!-- bootstrap  Image overlays Turn an image into a card background and overlay your card’s text. Depending on the image, you may or may not need additional styles or utilities. -->
-      <div class="card-img-overlay"></div>
-
-      <div class="card-body">
-        <p class="card-text">
-          <b> <%= listing.title %> </b> <br />
-          &#8377; <%= listing.price %> / night
-          <i class="tax-info">&nbsp;&nbsp;+18% GST</i>
-        </p>
+  <% for(let listing of allListings){ %>
+    <a href="/listings/<%= listing._id %>" class="listing-link">
+      <div class="listing-card">
+        <img
+          src="<%= listing.image.url %>"
+          class="card-img-top"
+          alt="Listing Image"
+          style="height: 20rem"
+        />
+        <div class="card-body">
+          <p class="card-text">
+            <b> <%= listing.title %> </b> <br />
+            &#8377; <%= listing.price %> / night
+            <i class="tax-info">&nbsp;&nbsp;+18% GST</i>
+          </p>
+        </div>
       </div>
-    </div>
-  </a>
-  <%}%>
+    </a>
+  <% } %>
 </div>
 
 <script>
   let taxSwitch = document.getElementById("flexSwitchCheckDefault");
+  
   taxSwitch.addEventListener("click", () => {
     let taxInfo = document.getElementsByClassName("tax-info");
-    for (info of taxInfo) {
-      if (info.style.display != "inline") {
-        info.style.display = "inline";
-      } else {
-        info.style.display = "none";
-      }
+    for (let info of taxInfo) {
+      info.style.display = info.style.display !== "inline" ? "inline" : "none";
     }
   });
 </script>

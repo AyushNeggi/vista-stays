@@ -1,52 +1,51 @@
 const User = require("../models/user");
 
-//signupform
+// Render the signup form
 module.exports.renderSignupForm = (req, res) => {
   res.render("users/signup.ejs");
 };
 
-//signup
+// Handle user signup
 module.exports.signup = async (req, res) => {
   try {
     let { username, email, password } = req.body;
-    const newUser = new User({ email, username });
-    const registeredUser = await User.register(newUser, password);
+    const newUser = new User({ email, username }); // Create a new user instance
+    const registeredUser = await User.register(newUser, password); // Register user with hashed password
 
     req.login(registeredUser, (err) => {
-      //due to this after sign up user will be automatically log in and it's info is save in session
+      // Automatically log in user after signup, storing session data
       if (err) {
         return next(err);
       }
-      req.flash("success", "Welcome to wanderlust");
-      res.redirect("/listings");
+      req.flash("success", "Welcome to Vista Stay!"); // Flash success message
+      res.redirect("/listings"); // Redirect to the listings page
     });
   } catch (e) {
-    //one case : when already sign in user will  sign up
-    req.flash("error", e.message);
-    res.redirect("/signup");
+    req.flash("error", e.message); // Flash error message if signup fails
+    res.redirect("/signup"); // Redirect back to signup page
   }
 };
 
-//login form
+// Render the login form
 module.exports.renderLoginForm = (req, res) => {
   res.render("users/login.ejs");
 };
 
-//login
+// Handle user login
 module.exports.login = async (req, res) => {
-  req.flash("success", "welcome to wanderlust ! You are logged in!");
-  let redirectUrl = res.locals.redirectUrl || "/listings"; //so that if user directly log in it will be directed to /listings
-  res.redirect(redirectUrl); //redirect to the path where user want to go before loging in
+  req.flash("success", "Welcome to Vista Stay! You are logged in!"); // Flash success message
+  let redirectUrl = res.locals.redirectUrl || "/listings"; // Redirect user to intended page after login
+  res.redirect(redirectUrl);
 };
 
-//logout
+// Handle user logout
 module.exports.logout = (req, res) => {
   req.logout((err) => {
-    //passport method to delete user info from ongoing session
+    // Passport method to end user session
     if (err) {
       return next(err);
     }
-    req.flash("success", "you are logged out now");
-    res.redirect("/listings");
+    req.flash("success", "You are logged out now"); // Flash logout message
+    res.redirect("/listings"); // Redirect to listings page after logout
   });
 };

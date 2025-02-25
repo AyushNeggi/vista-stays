@@ -10,7 +10,7 @@
       enctype="multipart/form-data"
     >
       <div class="mb-3">
-        <lable for="title" class="form-label">Title</lable>
+        <label for="title" class="form-label">Title</label>
         <input
           type="text"
           name="listing[title]"
@@ -22,31 +22,29 @@
       </div>
 
       <div class="mb-3">
-        <lable for="description" class="form-label">Description</lable>
+        <label for="description" class="form-label">Description</label>
         <textarea
           type="text"
           name="listing[description]"
           class="form-control"
           required
-        >
-<%= listing.description %></textarea
-        >
+        ><%= listing.description %></textarea>
         <div class="invalid-feedback">Please enter a short description!</div>
       </div>
 
       <div class="mb-3">
         Original Listing Image <br />
-        <img src="<%= originalImageUrl %>" alt="listingImage" />
+        <img src="<%= originalImageUrl %>" alt="Listing Image" />
       </div>
 
       <div class="mb-3">
-        <lable for="image" class="form-label">Upload New Image </lable>
+        <label for="image" class="form-label">Upload New Image</label>
         <input type="file" name="listing[image]" class="form-control" />
       </div>
 
       <div class="row">
         <div class="mb-3 col-md-4">
-          <lable for="price" class="form-label">Price</lable>
+          <label for="price" class="form-label">Price</label>
           <input
             name="listing[price]"
             value="<%= listing.price %>"
@@ -57,7 +55,7 @@
         </div>
 
         <div class="mb-3 col-md-8">
-          <lable for="country" class="form-label">Country</lable>
+          <label for="country" class="form-label">Country</label>
           <input
             type="text"
             name="listing[country]"
@@ -70,7 +68,7 @@
       </div>
 
       <div class="mb-3">
-        <lable for="location" class="form-label">Location</lable>
+        <label for="location" class="form-label">Location</label>
         <input
           type="text"
           name="listing[location]"
@@ -78,7 +76,7 @@
           class="form-control"
           required
         />
-        <div class="invalid-feedback">Please enter a valid locatio!</div>
+        <div class="invalid-feedback">Please enter a valid location!</div>
       </div>
 
       <button class="btn btn-dark edit-btn mt-3">Edit</button>

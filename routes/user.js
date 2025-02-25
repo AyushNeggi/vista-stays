@@ -1,4 +1,4 @@
-//for user sign up routes
+// Routes for user authentication (signup, login, logout)
 
 const express = require("express");
 const router = express.Router();
@@ -8,24 +8,26 @@ const passport = require("passport");
 const { saveRedirectUrl } = require("../middleware.js");
 const userController = require("../controllers/users.js");
 
+// Routes for user signup
 router
   .route("/signup")
-  .get(userController.renderSignupForm)
-  .post(wrapAsync(userController.signup));
+  .get(userController.renderSignupForm) // Renders signup form
+  .post(wrapAsync(userController.signup)); // Handles user registration
 
+// Routes for user login
 router
   .route("/login")
-  .get(userController.renderLoginForm)
+  .get(userController.renderLoginForm) // Renders login form
   .post(
-    saveRedirectUrl,
+    saveRedirectUrl, // Middleware to save the URL user wanted to visit before login
     passport.authenticate("local", {
-      //passport.authenticate is middleware which is used to check whether the person is already registerd or not
-      failureRedirect: "/login", //if fail then i it will redirect to here
-      failureFlash: true,
+      failureRedirect: "/login", // Redirects to login if authentication fails
+      failureFlash: true, // Displays error message on failure
     }),
-    userController.login
+    userController.login // Handles successful login
   );
 
-router.get("/logout", userController.logout);
+// Route for user logout
+router.get("/logout", userController.logout); // Logs user out and redirects to homepage
 
 module.exports = router;

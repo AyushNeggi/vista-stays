@@ -1,17 +1,24 @@
-<!-- all pages of our website should have same boilerplate  -->
+<!-- Boilerplate template for all pages of the website -->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vista Venture</title>
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/style.css" />
+
+    <!-- Bootstrap CSS (CDN) -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+
+    <!-- Font Awesome for icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
@@ -19,36 +26,51 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <!-- cdn link of font awesome-->
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;1,300&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Rating CSS -->
     <link rel="stylesheet" href="/css/rating.css" />
+
+    <!-- Mapbox GL CSS -->
     <link
       href="https://api.mapbox.com/mapbox-gl-js/v3.9.3/mapbox-gl.css"
       rel="stylesheet"
     />
+    
+    <!-- Mapbox GL JS -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.3/mapbox-gl.js"></script>
   </head>
-  <body>
-    <%- include("../includes/navbar.ejs") %>
-    <!--to include navbar as boilerplate for all pages  -->
-    <div class="container">
-      <%- include("../includes/flash.ejs") %>
-      <!--to include flash ejs as boilerplate for all pages  -->
 
+  <body>
+    <!-- Include navbar on all pages -->
+    <%- include("../includes/navbar.ejs") %>
+
+    <div class="container">
+      <!-- Include flash messages on all pages -->
+      <%- include("../includes/flash.ejs") %>
+
+      <!-- Dynamic content for each page -->
       <%- body %>
     </div>
 
+    <!-- Include footer on all pages -->
     <%- include("../includes/footer.ejs") %>
+
+    <!-- Bootstrap JS (CDN) -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"
     ></script>
+
+    <!-- Custom JS -->
     <script src="/js/script.js"></script>
   </body>
 </html>
