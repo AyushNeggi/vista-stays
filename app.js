@@ -1,5 +1,4 @@
-//main js file
-
+// Load environment variables in development mode
 if (process.env.NODE_ENV != "production") {
   require("dotenv").config();
 }
@@ -9,106 +8,114 @@ const app = express();
 const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
-const ejsMate = require("ejs-mate"); //requiring ejsmate
-const ExpressError = require("./utils/ExpressError.js");
-const session = require("express-session"); //for express-session
-const MongoStore = require('connect-mongo');  //for mongo-session alternative of express-session
+const ejsMate = require("ejs-mate"); // EJS layout engine for better templating
+const ExpressError = require("./utils/ExpressError.js"); // Custom error handling class
+const session = require("express-session"); // Session management middleware
+const MongoStore = require('connect-mongo');  // MongoDB session store (alternative to default session storage)
 
 const cookieParser = require("cookie-parser");
-const flash = require("connect-flash");
+const flash = require("connect-flash"); // Flash messages middleware for success/error messages
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
-const User = require("./models/user.js");
+const User = require("./models/user.js"); // User model for authentication
 
-const listingRouter = require("./routes/listing.js"); //express router
+// Importing route handlers
+const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
-const dbUrl = process.env.ATLASDB_URL;  //for mongoDB cloud
+const dbUrl = process.env.ATLASDB_URL;  // MongoDB Atlas connection URL
 
-main()
-  .then(() => {
-    console.log("connected to DB");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+// Connect to MongoDB database
 async function main() {
   await mongoose.connect(dbUrl);
 }
 
+main()
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("MongoDB Connection Error:", err);
+  });
+
+// Set view engine and views directory
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride("_method"));
-app.engine("ejs", ejsMate);
-app.use(express.static(path.join(__dirname, "/public"))); //to use static files from public folder
 
-const store=MongoStore.create({
-  mongoUrl:dbUrl,
-  cryto:{
-   secret: process.env.SECRET,
+// Middleware setup
+app.use(express.urlencoded({ extended: true })); // Parses URL-encoded bodies (form submissions)
+app.use(methodOverride("_method")); // Allows using PUT and DELETE methods in HTML forms
+app.engine("ejs", ejsMate); // Set EJS Mate as the template engine
+app.use(express.static(path.join(__dirname, "/public"))); // Serve static files from 'public' directory
+
+// Configure MongoDB session store
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  crypto: {
+    secret: process.env.SECRET, // Secret key for encrypting session data
   },
-  touchAfter: 24*3600 ,//interval bewtween session updates(in sec)
+  touchAfter: 24 * 3600, // Reduce session updates (time in seconds)
 });
 
-store.on("error", ()=>{
-   console.log("error in mongo session store",err);
+// Handle errors in session store
+store.on("error", (err) => {
+  console.error("MongoDB Session Store Error:", err);
 });
 
+// Session configuration
 const sessionOptions = {
-  store,  //mongo store related 
+  store, // Use MongoDB store for sessions
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000, //expiration time of cookie
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true, //for security purpose
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // Set cookie expiration (7 days)
+    maxAge: 7 * 24 * 60 * 60 * 1000, // Max cookie age (7 days)
+    httpOnly: true, // Prevent client-side JavaScript access to cookies (security measure)
   },
 };
 
-
-
-
-app.get("/", (req, res) => {
-  res.redirect("/listings");
-});
-
+// Apply session and flash middleware
 app.use(session(sessionOptions));
 app.use(flash());
 
-//authentication part
+// Passport.js authentication setup
+app.use(passport.initialize()); // Initialize passport
+app.use(passport.session()); // Persistent login sessions
+passport.use(new LocalStrategy(User.authenticate())); // Local authentication strategy using User model
 
-app.use(passport.initialize()); //a middleware that initializes passport
-app.use(passport.session()); //a website should know that same user is requesting from different pages of same browser so for multiple req he dosn't need to signin multiple times
-passport.use(new LocalStrategy(User.authenticate())); //all users should be authenticate from localStrategy with help of user.authenticate method
+passport.serializeUser(User.serializeUser()); // Serialize user into session
+passport.deserializeUser(User.deserializeUser()); // Deserialize user from session
 
-passport.serializeUser(User.serializeUser()); //to store user data in session
-passport.deserializeUser(User.deserializeUser()); //to remove user data from session
-
+// Middleware to set global template variables
 app.use((req, res, next) => {
-  //middleware
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
-  res.locals.currUser = req.user; //the person which is loggedin in current session
+  res.locals.success = req.flash("success"); // Success message
+  res.locals.error = req.flash("error"); // Error message
+  res.locals.currUser = req.user; // Store logged-in user details in res.locals
   next();
 });
 
-app.use("/listings", listingRouter); //use of express router all routes starting with /routes will go to listing file
-app.use("/listings/:id/reviews", reviewRouter); // here id parameter doesn't go to review.js due to this error come as undefined comes when u will print id in review.js. mergeParams: true is used to send safely
-app.use("/", userRouter);
+// Route handlers
+app.get("/", (req, res) => {
+  res.redirect("/listings"); // Redirect root route to listings
+});
+app.use("/listings", listingRouter); // Routes for listings
+app.use("/listings/:id/reviews", reviewRouter); // Routes for reviews (requires mergeParams: true in router)
+app.use("/", userRouter); // Routes for user authentication and profiles
 
+// Catch-all route for undefined routes
 app.all("*", (req, res, next) => {
   next(new ExpressError(404, "Page not found!"));
 });
 
+// Global error handling middleware
 app.use((err, req, res, next) => {
   let { statusCode = 500, message = "Something went wrong" } = err;
-  res.status(statusCode).render("error.ejs", { message });
-  // res.status(statusCode).send(message);
+  res.status(statusCode).render("error.ejs", { message }); // Render error page
 });
 
+// Start the server
 app.listen(8080, () => {
-  console.log("server is listening to port 8080");
+  console.log("Server is running on port 8080");
 });
