@@ -1,15 +1,12 @@
 // File for restructuring listing routes
-
 const express = require("express");
 const router = express.Router();
-
 const wrapAsync = require("../utils/wrapAsync.js");
 const Listing = require("../models/listing.js"); // Accessing Listing collection
 const { isLoggedIn, isOwner, validateListing } = require("../middleware.js"); // Middleware functions for authentication and validation
 const listingController = require("../controllers/listing.js");
 const multer = require("multer"); // Middleware for handling file uploads
 const { storage } = require("../cloudConfig.js");
-
 const upload = multer({ storage }); // Configuring file storage destination
 
 router
@@ -22,8 +19,7 @@ router
     wrapAsync(listingController.createListing)
   );
 
-// Route to render the form for creating a new listing
-router.get("/new", isLoggedIn, listingController.renderNewForm);
+router.get("/new", isLoggedIn, listingController.renderNewForm); // Route to render the form for creating a new listing
 
 router
   .route("/:id")
